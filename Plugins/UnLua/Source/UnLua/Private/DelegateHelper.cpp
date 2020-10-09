@@ -129,15 +129,15 @@ void FDelegateHelper::PreBind(FScriptDelegate *ScriptDelegate, FDelegateProperty
     }
 }
 
-bool FDelegateHelper::Bind(FScriptDelegate *ScriptDelegate, UObject *Object, const FCallbackDesc &Callback, int32 CallbackRef)
+bool FDelegateHelper::Bind(FScriptDelegate *ScriptDelegate, UObject *Object, const FCallbackDesc &Callback, FLuaRefDesc CallbackRef)
 {
     FDelegateProperty **PropertyPtr = Delegate2Property.Find(ScriptDelegate);
     return PropertyPtr ? Bind(ScriptDelegate, *PropertyPtr, Object, Callback, CallbackRef) : false;
 }
 
-bool FDelegateHelper::Bind(FScriptDelegate *ScriptDelegate, FDelegateProperty *Property, UObject *Object, const FCallbackDesc &Callback, int32 CallbackRef)
+bool FDelegateHelper::Bind(FScriptDelegate *ScriptDelegate, FDelegateProperty *Property, UObject *Object, const FCallbackDesc &Callback, FLuaRefDesc CallbackRef)
 {
-    if (!ScriptDelegate || ScriptDelegate->IsBound() || !Property || !Object || !Callback.Class || CallbackRef == INDEX_NONE)
+    if (!ScriptDelegate || ScriptDelegate->IsBound() || !Property || !Object || !Callback.Class || CallbackRef.L == nullptr || CallbackRef.Ref == INDEX_NONE)
     {
         UE_LOG(LogUnLua, Warning, TEXT("%s: Invalid Delegate Bind! : %s"), ANSI_TO_TCHAR(__FUNCTION__), *(Property->GetName()));
         return false;
@@ -239,15 +239,15 @@ void FDelegateHelper::PreAdd(FMulticastDelegateType *ScriptDelegate, FMulticastD
     }
 }
 
-bool FDelegateHelper::Add(FMulticastDelegateType *ScriptDelegate, UObject *Object, const FCallbackDesc &Callback, int32 CallbackRef)
+bool FDelegateHelper::Add(FMulticastDelegateType *ScriptDelegate, UObject *Object, const FCallbackDesc &Callback, FLuaRefDesc CallbackRef)
 {
     FMulticastDelegateProperty **PropertyPtr = MulticastDelegate2Property.Find(ScriptDelegate);
     return PropertyPtr ? Add(ScriptDelegate, *PropertyPtr, Object, Callback, CallbackRef) : false;
 }
 
-bool FDelegateHelper::Add(FMulticastDelegateType *ScriptDelegate, FMulticastDelegateProperty *Property, UObject *Object, const FCallbackDesc &Callback, int32 CallbackRef)
+bool FDelegateHelper::Add(FMulticastDelegateType *ScriptDelegate, FMulticastDelegateProperty *Property, UObject *Object, const FCallbackDesc &Callback, FLuaRefDesc CallbackRef)
 {
-    if (!ScriptDelegate || !Property || !Object || !Callback.Class || CallbackRef == INDEX_NONE)
+    if (!ScriptDelegate || !Property || !Object || !Callback.Class || CallbackRef.L == nullptr || CallbackRef.Ref == INDEX_NONE)
     {
         UE_LOG(LogUnLua, Warning, TEXT("%s: Invalid Delegate Add! : %s"), ANSI_TO_TCHAR(__FUNCTION__), *(Property->GetName()));
         return false;
@@ -508,13 +508,13 @@ void FDelegateHelper::Cleanup(bool bFullCleanup)
  * 4. Update function flags for the new signature if necessary
  * 5. Update cached infos
  */
-void FDelegateHelper::CreateSignature(UFunction *TemplateFunction, FName FuncName, const FCallbackDesc &Callback, int32 CallbackRef)
+void FDelegateHelper::CreateSignature(UFunction *TemplateFunction, FName FuncName, const FCallbackDesc &Callback, FLuaRefDesc CallbackRef)
 {
     UFunction *SignatureFunction = DuplicateUFunction(TemplateFunction, Callback.Class, FuncName);      // duplicate the signature UFunction
     SignatureFunction->Script.Empty();
 
     FSignatureDesc *SignatureDesc = new FSignatureDesc;
-    SignatureDesc->SignatureFunctionDesc = GReflectionRegistry.RegisterFunction(SignatureFunction, CallbackRef);
+    SignatureDesc->SignatureFunctionDesc = GReflectionRegistry.RegisterFunction(SignatureFunction);
     SignatureDesc->CallbackRef = CallbackRef;
     Signatures.Add(SignatureFunction, SignatureDesc);
 

@@ -30,7 +30,7 @@ class FFunctionDesc
     friend class FReflectionRegistry;
 
 public:
-    FFunctionDesc(UFunction *InFunction, FParameterCollection *InDefaultParams, int32 InFunctionRef = INDEX_NONE);
+    FFunctionDesc(UFunction *InFunction, FParameterCollection *InDefaultParams);
     ~FFunctionDesc();
 
     /**
@@ -147,7 +147,6 @@ private:
     FParameterCollection *DefaultParams;
     int32 ReturnPropertyIndex;
     int32 LatentPropertyIndex;
-    int32 FunctionRef;
     uint8 NumRefProperties;
     uint8 NumCalls;                 // RECURSE_LIMIT is 120 or 250 which is less than 256, so use a byte...
     uint8 bStaticFunc : 1;

@@ -23,9 +23,9 @@
 /**
  * Function descriptor constructor
  */
-FFunctionDesc::FFunctionDesc(UFunction *InFunction, FParameterCollection *InDefaultParams, int32 InFunctionRef)
+FFunctionDesc::FFunctionDesc(UFunction *InFunction, FParameterCollection *InDefaultParams)
     : Function(InFunction), DefaultParams(InDefaultParams), ReturnPropertyIndex(INDEX_NONE), LatentPropertyIndex(INDEX_NONE)
-    , FunctionRef(InFunctionRef), NumRefProperties(0), NumCalls(0), bStaticFunc(false), bInterfaceFunc(false)
+    , NumRefProperties(0), NumCalls(0), bStaticFunc(false), bInterfaceFunc(false)
 {
     check(InFunction);
 
@@ -148,12 +148,6 @@ FFunctionDesc::~FFunctionDesc()
     {
         delete Property;
     }
-
-    // remove Lua reference for this function
-    if (FunctionRef != INDEX_NONE)
-    {
-        luaL_unref(*GLuaCxt, LUA_REGISTRYINDEX, FunctionRef);
-    }
 }
 
 /**
@@ -164,13 +158,8 @@ bool FFunctionDesc::CallLua(UObject *Context, FFrame &Stack, void *RetValueAddre
     // push Lua function to the stack
     bool bSuccess = false;
     lua_State *L = *GLuaCxt;
-    if (FunctionRef != INDEX_NONE)
     {
-        bSuccess = PushFunction(L, Context, FunctionRef);
-    }
-    else
-    {
-        FunctionRef = PushFunction(L, Context, bRpcCall ? TCHAR_TO_ANSI(*FString::Printf(TEXT("%s_RPC"), *FuncName)) : TCHAR_TO_ANSI(*FuncName));
+        int32 FunctionRef = PushFunction(L, Context, bRpcCall ? TCHAR_TO_ANSI(*FString::Printf(TEXT("%s_RPC"), *FuncName)) : TCHAR_TO_ANSI(*FuncName));
         bSuccess = FunctionRef != INDEX_NONE;
     }
 

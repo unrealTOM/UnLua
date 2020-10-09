@@ -888,7 +888,10 @@ public:
             {
                 // no delegate function is created yet
                 lua_rawgeti(L, IndexInStack, FuncIdxInTable);
-                int32 CallbackRef = luaL_ref(L, LUA_REGISTRYINDEX);
+
+				FLuaRefDesc CallbackRef;
+				CallbackRef.L = L;
+				CallbackRef.Ref = luaL_ref(L, LUA_REGISTRYINDEX);
                 FDelegateHelper::Bind(ScriptDelegate, DelegateProperty, Object, Callback, CallbackRef);
             }
             else
@@ -937,7 +940,10 @@ public:
             {
                 // no delegate function is created yet
                 lua_rawgeti(L, IndexInStack, FuncIdxInTable);
-                int32 CallbackRef = luaL_ref(L, LUA_REGISTRYINDEX);
+
+				FLuaRefDesc CallbackRef;
+				CallbackRef.L = L;
+				CallbackRef.Ref = luaL_ref(L, LUA_REGISTRYINDEX);
                 FDelegateHelper::Add(ScriptDelegate, MulticastDelegateProperty, Object, Callback, CallbackRef);
             }
             else

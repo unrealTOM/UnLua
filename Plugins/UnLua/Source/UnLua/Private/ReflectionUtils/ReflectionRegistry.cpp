@@ -172,22 +172,17 @@ FEnumDesc* FReflectionRegistry::RegisterEnum(UEnum *InEnum)
 /**
  * Register a UFunction
  */
-FFunctionDesc* FReflectionRegistry::RegisterFunction(UFunction *InFunction, int32 InFunctionRef)
+FFunctionDesc* FReflectionRegistry::RegisterFunction(UFunction *InFunction)
 {
     FFunctionDesc *Function = nullptr;
     FFunctionDesc **FunctionPtr = Functions.Find(InFunction);
     if (FunctionPtr)
     {
         Function = *FunctionPtr;
-        if (InFunctionRef != INDEX_NONE)
-        {
-            check(Function->FunctionRef == INDEX_NONE || Function->FunctionRef == InFunctionRef);
-            Function->FunctionRef = InFunctionRef;
-        }
     }
     else
     {
-        Function = new FFunctionDesc(InFunction, nullptr, InFunctionRef);
+        Function = new FFunctionDesc(InFunction, nullptr);
         Functions.Add(InFunction, Function);
     }
     return Function;

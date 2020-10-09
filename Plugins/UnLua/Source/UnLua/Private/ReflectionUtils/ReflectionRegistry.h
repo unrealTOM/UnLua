@@ -70,7 +70,7 @@ public:
     FEnumDesc* RegisterEnum(const TCHAR *InName);
     FEnumDesc* RegisterEnum(UEnum *InEnum);
 
-    FFunctionDesc* RegisterFunction(UFunction *InFunction, int32 InFunctionRef = INDEX_NONE);
+    FFunctionDesc* RegisterFunction(UFunction *InFunction);
     bool UnRegisterFunction(UFunction *InFunction);
 #if ENABLE_CALL_OVERRIDDEN_FUNCTION
     bool AddOverriddenFunction(UFunction *NewFunc, UFunction *OverriddenFunc);
