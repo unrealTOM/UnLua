@@ -48,16 +48,6 @@ FORCEINLINE uint32 GetTypeHash(const FCallbackDesc &Callback)
 
 struct lua_State;
 
-struct FLuaRefDesc
-{
-	FLuaRefDesc()
-		: L(nullptr), Ref(INDEX_NONE)
-	{}
-
-	lua_State* L;
-	int32 Ref;
-};
-
 struct FSignatureDesc
 {
     FSignatureDesc()
@@ -69,7 +59,6 @@ struct FSignatureDesc
     void Execute(UObject *Context, FFrame &Stack, void *RetValueAddress);
 
     class FFunctionDesc *SignatureFunctionDesc;
-	FLuaRefDesc CallbackRef;
     int16 NumCalls;
     uint16 NumBindings : 15;
     uint16 bPendingKill : 1;
@@ -89,15 +78,15 @@ public:
     static FName GetBindedFunctionName(const FCallbackDesc &Callback);
 
     static void PreBind(FScriptDelegate *ScriptDelegate, FDelegateProperty *Property);
-    static bool Bind(FScriptDelegate *ScriptDelegate, UObject *Object, const FCallbackDesc &Callback, FLuaRefDesc CallbackRef);
-    static bool Bind(FScriptDelegate *ScriptDelegate, FDelegateProperty *Property, UObject *Object, const FCallbackDesc &Callback, FLuaRefDesc CallbackRef);
+    static bool Bind(FScriptDelegate *ScriptDelegate, UObject *Object, const FCallbackDesc &Callback);
+    static bool Bind(FScriptDelegate *ScriptDelegate, FDelegateProperty *Property, UObject *Object, const FCallbackDesc &Callback);
     static void Unbind(const FCallbackDesc &Callback);
     static void Unbind(FScriptDelegate *ScriptDelegate);
     static int32 Execute(lua_State *L, FScriptDelegate *ScriptDelegate, int32 NumParams, int32 FirstParamIndex);
 
     static void PreAdd(FMulticastDelegateType *ScriptDelegate, FMulticastDelegateProperty *Property);
-    static bool Add(FMulticastDelegateType *ScriptDelegate, UObject *Object, const FCallbackDesc &Callback, FLuaRefDesc CallbackRef);
-    static bool Add(FMulticastDelegateType *ScriptDelegate, FMulticastDelegateProperty *Property, UObject *Object, const FCallbackDesc &Callback, FLuaRefDesc CallbackRef);
+    static bool Add(FMulticastDelegateType *ScriptDelegate, UObject *Object, const FCallbackDesc &Callback);
+    static bool Add(FMulticastDelegateType *ScriptDelegate, FMulticastDelegateProperty *Property, UObject *Object, const FCallbackDesc &Callback);
     static void Remove(FMulticastDelegateType *ScriptDelegate, UObject *Object, const FCallbackDesc &Callback);
     static void Clear(FMulticastDelegateType *InScriptDelegate);
     static void Broadcast(lua_State *L, FMulticastDelegateType *InScriptDelegate, int32 NumParams, int32 FirstParamIndex);
@@ -109,7 +98,7 @@ public:
     static void Cleanup(bool bFullCleanup);
 
 private:
-    static void CreateSignature(UFunction *TemplateFunction, FName FuncName, const FCallbackDesc &Callback, FLuaRefDesc CallbackRef);
+    static void CreateSignature(UFunction *TemplateFunction, FName FuncName, const FCallbackDesc &Callback);
 
     static TMap<FScriptDelegate*, FDelegateProperty*> Delegate2Property;
     static TMap<FMulticastDelegateType*, FMulticastDelegateProperty*> MulticastDelegate2Property;

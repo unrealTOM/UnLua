@@ -74,12 +74,7 @@ struct TMulticastDelegateLib
         FName FuncName = FDelegateHelper::GetBindedFunctionName(Callback);
         if (FuncName == NAME_None)
         {
-            lua_pushvalue(L, 3);
-
-			FLuaRefDesc CallbackRef;
-			CallbackRef.L = L;
-			CallbackRef.Ref = luaL_ref(L, LUA_REGISTRYINDEX);
-            FDelegateHelper::Add(Delegate, Object, Callback, CallbackRef);
+            FDelegateHelper::Add(Delegate, Object, Callback);
         }
         else
         {

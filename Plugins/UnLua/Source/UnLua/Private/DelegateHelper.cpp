@@ -129,15 +129,15 @@ void FDelegateHelper::PreBind(FScriptDelegate *ScriptDelegate, FDelegateProperty
     }
 }
 
-bool FDelegateHelper::Bind(FScriptDelegate *ScriptDelegate, UObject *Object, const FCallbackDesc &Callback, FLuaRefDesc CallbackRef)
+bool FDelegateHelper::Bind(FScriptDelegate *ScriptDelegate, UObject *Object, const FCallbackDesc &Callback)
 {
     FDelegateProperty **PropertyPtr = Delegate2Property.Find(ScriptDelegate);
-    return PropertyPtr ? Bind(ScriptDelegate, *PropertyPtr, Object, Callback, CallbackRef) : false;
+    return PropertyPtr ? Bind(ScriptDelegate, *PropertyPtr, Object, Callback) : false;
 }
 
-bool FDelegateHelper::Bind(FScriptDelegate *ScriptDelegate, FDelegateProperty *Property, UObject *Object, const FCallbackDesc &Callback, FLuaRefDesc CallbackRef)
+bool FDelegateHelper::Bind(FScriptDelegate *ScriptDelegate, FDelegateProperty *Property, UObject *Object, const FCallbackDesc &Callback)
 {
-    if (!ScriptDelegate || ScriptDelegate->IsBound() || !Property || !Object || !Callback.Class || CallbackRef.L == nullptr || CallbackRef.Ref == INDEX_NONE)
+    if (!ScriptDelegate || ScriptDelegate->IsBound() || !Property || !Object || !Callback.Class)
     {
         UE_LOG(LogUnLua, Warning, TEXT("%s: Invalid Delegate Bind! : %s"), ANSI_TO_TCHAR(__FUNCTION__), *(Property->GetName()));
         return false;
@@ -148,7 +148,7 @@ bool FDelegateHelper::Bind(FScriptDelegate *ScriptDelegate, FDelegateProperty *P
     {
         FName FuncName(*FString::Printf(TEXT("%s_%s"), *Property->GetName(), *FGuid::NewGuid().ToString()));
         ScriptDelegate->BindUFunction(Object, FuncName);                                    // bind a callback to the delegate
-        CreateSignature(Property->SignatureFunction, FuncName, Callback, CallbackRef);      // create the signature function for the callback
+        CreateSignature(Property->SignatureFunction, FuncName, Callback);      // create the signature function for the callback
     }
     return true;
 }
@@ -239,15 +239,15 @@ void FDelegateHelper::PreAdd(FMulticastDelegateType *ScriptDelegate, FMulticastD
     }
 }
 
-bool FDelegateHelper::Add(FMulticastDelegateType *ScriptDelegate, UObject *Object, const FCallbackDesc &Callback, FLuaRefDesc CallbackRef)
+bool FDelegateHelper::Add(FMulticastDelegateType *ScriptDelegate, UObject *Object, const FCallbackDesc &Callback)
 {
     FMulticastDelegateProperty **PropertyPtr = MulticastDelegate2Property.Find(ScriptDelegate);
-    return PropertyPtr ? Add(ScriptDelegate, *PropertyPtr, Object, Callback, CallbackRef) : false;
+    return PropertyPtr ? Add(ScriptDelegate, *PropertyPtr, Object, Callback) : false;
 }
 
-bool FDelegateHelper::Add(FMulticastDelegateType *ScriptDelegate, FMulticastDelegateProperty *Property, UObject *Object, const FCallbackDesc &Callback, FLuaRefDesc CallbackRef)
+bool FDelegateHelper::Add(FMulticastDelegateType *ScriptDelegate, FMulticastDelegateProperty *Property, UObject *Object, const FCallbackDesc &Callback)
 {
-    if (!ScriptDelegate || !Property || !Object || !Callback.Class || CallbackRef.L == nullptr || CallbackRef.Ref == INDEX_NONE)
+    if (!ScriptDelegate || !Property || !Object || !Callback.Class)
     {
         UE_LOG(LogUnLua, Warning, TEXT("%s: Invalid Delegate Add! : %s"), ANSI_TO_TCHAR(__FUNCTION__), *(Property->GetName()));
         return false;
@@ -259,7 +259,7 @@ bool FDelegateHelper::Add(FMulticastDelegateType *ScriptDelegate, FMulticastDele
         FName FuncName(*FString::Printf(TEXT("%s_%s"), *Property->GetName(), *FGuid::NewGuid().ToString()));
         FScriptDelegate DynamicDelegate;
         DynamicDelegate.BindUFunction(Object, FuncName);
-        CreateSignature(Property->SignatureFunction, FuncName, Callback, CallbackRef);      // create the signature function for the callback
+        CreateSignature(Property->SignatureFunction, FuncName, Callback);      // create the signature function for the callback
         TMulticastDelegateTraits<FMulticastDelegateType>::AddDelegate(Property, DynamicDelegate, ScriptDelegate);   // add a callback to the delegate
     }
     return true;
@@ -508,14 +508,13 @@ void FDelegateHelper::Cleanup(bool bFullCleanup)
  * 4. Update function flags for the new signature if necessary
  * 5. Update cached infos
  */
-void FDelegateHelper::CreateSignature(UFunction *TemplateFunction, FName FuncName, const FCallbackDesc &Callback, FLuaRefDesc CallbackRef)
+void FDelegateHelper::CreateSignature(UFunction *TemplateFunction, FName FuncName, const FCallbackDesc &Callback)
 {
     UFunction *SignatureFunction = DuplicateUFunction(TemplateFunction, Callback.Class, FuncName);      // duplicate the signature UFunction
     SignatureFunction->Script.Empty();
 
     FSignatureDesc *SignatureDesc = new FSignatureDesc;
     SignatureDesc->SignatureFunctionDesc = GReflectionRegistry.RegisterFunction(SignatureFunction);
-    SignatureDesc->CallbackRef = CallbackRef;
     Signatures.Add(SignatureFunction, SignatureDesc);
 
     OverrideUFunction(SignatureFunction, (FNativeFuncPtr)&FDelegateHelper::ProcessDelegate, SignatureDesc, false);      // set custom thunk function for the duplicated UFunction

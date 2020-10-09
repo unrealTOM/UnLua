@@ -53,13 +53,7 @@ static int32 FScriptDelegate_Bind(lua_State *L)
     FName FuncName = FDelegateHelper::GetBindedFunctionName(Callback);
     if (FuncName == NAME_None)
     {
-		lua_pushvalue(L, 3);
-
-		FLuaRefDesc CallbackRef;
-		CallbackRef.L = L;
-		CallbackRef.Ref = luaL_ref(L, LUA_REGISTRYINDEX);
-
-		FDelegateHelper::Bind(Delegate, Object, Callback, CallbackRef);
+		FDelegateHelper::Bind(Delegate, Object, Callback);
     }
     else
     {

@@ -886,13 +886,7 @@ public:
             FName FuncName = FDelegateHelper::GetBindedFunctionName(Callback);
             if (FuncName == NAME_None)
             {
-                // no delegate function is created yet
-                lua_rawgeti(L, IndexInStack, FuncIdxInTable);
-
-				FLuaRefDesc CallbackRef;
-				CallbackRef.L = L;
-				CallbackRef.Ref = luaL_ref(L, LUA_REGISTRYINDEX);
-                FDelegateHelper::Bind(ScriptDelegate, DelegateProperty, Object, Callback, CallbackRef);
+                FDelegateHelper::Bind(ScriptDelegate, DelegateProperty, Object, Callback);
             }
             else
             {
@@ -938,13 +932,7 @@ public:
             FName FuncName = FDelegateHelper::GetBindedFunctionName(Callback);
             if (FuncName == NAME_None)
             {
-                // no delegate function is created yet
-                lua_rawgeti(L, IndexInStack, FuncIdxInTable);
-
-				FLuaRefDesc CallbackRef;
-				CallbackRef.L = L;
-				CallbackRef.Ref = luaL_ref(L, LUA_REGISTRYINDEX);
-                FDelegateHelper::Add(ScriptDelegate, MulticastDelegateProperty, Object, Callback, CallbackRef);
+                FDelegateHelper::Add(ScriptDelegate, MulticastDelegateProperty, Object, Callback);
             }
             else
             {
